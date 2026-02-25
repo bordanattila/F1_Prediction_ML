@@ -15,8 +15,8 @@ def aggregate_track_status_data(track_status_df: pd.DataFrame):
         ts['time'] = pd.to_timedelta(ts['time'], errors='raise')
 
         # Sort and compute duration each status lasted
-        ts = ts.sort_values(by=['sessionkey', 'time'])
-        ts['next_time'] = ts.groupby('sessionkey')['time'].shift(-1)
+        ts = ts.sort_values(by=['session_key', 'time'])
+        ts['next_time'] = ts.groupby('session_key')['time'].shift(-1)
         ts['duration'] = (ts['next_time'] - ts['time'])
         # Replace the last row with 0 seconds.
         ts['duration'] = ts['duration'].fillna(pd.Timedelta(seconds=0))
@@ -30,7 +30,7 @@ def aggregate_track_status_data(track_status_df: pd.DataFrame):
         ts['not_green'] = ts['status'].astype(str).ne('1')
 
 
-        track_status_aggregated = (ts.groupby('sessionkey', as_index=False)
+        track_status_aggregated = (ts.groupby('session_key', as_index=False)
             .agg(
                 yellow_count=('yellow', 'sum'),
                 red_count=('red', 'sum'),
