@@ -6,9 +6,9 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 
-from f1_prediction_ml.normalize.utils import convert_time_columns_to_seconds
+from f1_prediction_ml.normalize.normalization_utils import convert_time_columns_to_seconds
 
-class Quali_Normalizer:
+class QualifyingNormalizer:
     def __init__(self, processed_data_dir: str, normalize_data_dir: str):
         self.processed_data_dir = processed_data_dir
         self.normalize_data_dir = normalize_data_dir

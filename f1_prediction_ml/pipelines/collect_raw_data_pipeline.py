@@ -18,18 +18,6 @@ YELLOW = "\033[33m"
 MAGENTA = "\033[35m"
 RESET = "\033[0m"
 
-# Map session type codes to descriptive names
-FREE_PRACTICE_SESSION_TYPE_MAP = {
-    'FP1': 'Practice_1',
-    'FP2': 'Practice_2',
-    'FP3': 'Practice_3',
-}
-
-# session_year = 2018
-# sessions = ['Australia', 'Bahrain', 'China', 'Azerbaijan', 'Spain', 'Monaco', 'Canada', 'France', 'Austria', 'Great Britain', 'Germany',
-#          'Hungary', 'Belgium', 'Italy', 'Singapore', 'Russia', 'Japan', 'United States', 'Mexico', 'Brazil', 'Abu Dhabi']
-# session_type = ['FP1', 'FP2', 'FP3', 'SQ', 'Q', 'S', 'SS', 'R']
-
 data_collector = RawDataCollector(cache_dir=str(project_root))
 
 def raw_data_collection_pipeline(session_year, sessions, session_type):
@@ -64,9 +52,8 @@ def raw_data_collection_pipeline(session_year, sessions, session_type):
             session_data['weather_data'].to_csv(output_dir / f'{session_year}_{session_name}_{ses_type}_weather.csv')
             session_data['results'].to_csv(output_dir / f'{session_year}_{session_name}_{ses_type}_results.csv')
             session_data['track_status'].to_csv(output_dir / f'{session_year}_{session_name}_{ses_type}_track_status.csv')
-            # Map practice sessions to descriptive names (FP1 -> Practice_1, etc.)
-            if ses_type in FREE_PRACTICE_SESSION_TYPE_MAP:
-                session_data['session_info']['SessionType'] = FREE_PRACTICE_SESSION_TYPE_MAP[ses_type]
+            # Replace spaces with underscores in session type for consistency in file naming
+            session_data['session_info']['SessionType'] = session_data['session_info']['SessionType'].replace(' ', '_')
             session_data['session_info'].to_csv(output_dir / f'{session_year}_{session_name}_{ses_type}_session_info.csv')
             print(f"{CYAN}INFO: Saved data for {session_year} {session_name} {ses_type} session to CSV files.{RESET}")
         

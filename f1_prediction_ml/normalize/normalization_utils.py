@@ -1,4 +1,5 @@
 from pathlib import Path
+import pandas as pd
 
 # Add project root to Python path
 project_root = Path(__file__).resolve().parents[2]
@@ -34,5 +35,7 @@ def convert_time_columns_to_seconds(df, time_columns):
     """
     for col in time_columns:
         if col in df.columns:
-            df[col] = pd.to_timedelta(df[col]).dt.total_seconds()
+            new_col_name = f'{col}_sec'
+            df[new_col_name] = pd.to_timedelta(df[col]).dt.total_seconds()
     return df
+

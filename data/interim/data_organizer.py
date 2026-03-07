@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from data.interim.utils.utils import standardize_cols, drop_columns, create_finished_position_column, CYAN, RESET
+from data.interim.utils.data_organizer_utils import standardize_column_names, drop_unnecessary_columns, CYAN, RESET
 from data.interim.aggregators.weather_aggregate import aggregate_weather_data 
 from data.interim.aggregators.track_status_aggregate import aggregate_track_status_data
 from data.interim.aggregators.laps_aggregate import aggregate_laps_data
@@ -38,11 +38,11 @@ class DataOrganizer:
         session_info_df = pd.read_csv(session_info_file)
 
         # Standardize column names
-        laps_df = standardize_cols(laps_df)
-        weather_df = standardize_cols(weather_df)
-        results_df = standardize_cols(results_df)
-        track_status_df = standardize_cols(track_status_df)
-        session_info_df = standardize_cols(session_info_df)        
+        laps_df = standardize_column_names(laps_df)
+        weather_df = standardize_column_names(weather_df)
+        results_df = standardize_column_names(results_df)
+        track_status_df = standardize_column_names(track_status_df)
+        session_info_df = standardize_column_names(session_info_df)        
 
         # Merge data from cv files under a shared key into one DataFrame
         print(f'{CYAN}INFO: Confirm session_key to dataframes{RESET}')
@@ -57,7 +57,7 @@ class DataOrganizer:
         print(f'{CYAN}************ Results DataFrame Head ***********{RESET}')
         print(results_df.head())
         
-        results_df = drop_columns(results_df)
+        results_df = drop_unnecessary_columns(results_df)
 
         weather_aggregated = aggregate_weather_data(weather_df)
         track_status_aggregated = aggregate_track_status_data(track_status_df)

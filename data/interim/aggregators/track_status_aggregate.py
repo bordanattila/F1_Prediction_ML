@@ -1,5 +1,5 @@
 import pandas as pd
-from ..utils.utils import CYAN, RESET
+from ..utils.data_organizer_utils import CYAN, RESET
 
 def aggregate_track_status_data(track_status_df: pd.DataFrame):
         """

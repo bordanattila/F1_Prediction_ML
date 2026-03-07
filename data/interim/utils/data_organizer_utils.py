@@ -5,7 +5,7 @@ MAGENTA = "\033[35m"
 RESET = "\033[0m"
 
 # Normalize common column names
-def standardize_cols(df):
+def standardize_column_names(df):
     """
     Standardizes column names by stripping whitespace, replacing spaces with underscores, and converting to lowercase.
     Example: 'DriverNumber' -> 'driver_number', 'LapTime' -> 'lap_time'
@@ -19,7 +19,7 @@ def standardize_cols(df):
     return df
 
 # Drop unnecessary columns
-def drop_columns(df):
+def drop_unnecessary_columns(df):
     """
     Drops unnecessary columns from the DataFrame.
     """
@@ -48,3 +48,4 @@ def drop_columns(df):
 
 #     df['finished_position'] = df.apply(calculate_finished_position, axis=1)
 #     return df
+

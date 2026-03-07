@@ -11,7 +11,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 
-from f1_prediction_ml.normalize.utils import get_list_of_sessions
+from f1_prediction_ml.normalize.normalization_utils import get_list_of_sessions
 
 # Color codes
 CYAN = "\033[36m"
@@ -54,3 +54,4 @@ def concatenate_csv_files(list_of_sessions):
 
 
 concatenate_csv_files(list_of_sessions)
+

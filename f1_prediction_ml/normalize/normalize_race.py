@@ -7,11 +7,10 @@ import re
 project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 
-from f1_prediction_ml.normalize.utils import get_list_of_sessions
-from f1_prediction_ml.normalize.utils import convert_time_columns_to_seconds
+from f1_prediction_ml.normalize.normalization_utils import convert_time_columns_to_seconds
 
 
-class Race_Normalizer:
+class RaceNormalizer:
     def __init__(self, processed_data_dir: str, normalize_data_dir: str):
         self.processed_data_dir = processed_data_dir
         self.normalize_data_dir = normalize_data_dir
@@ -19,7 +18,7 @@ class Race_Normalizer:
 
     def normalize_race_data(self, df):
         """
-        Normalizes the race data by creating new columns for race performance, 'race_finish_position', 'is_dnf', 'laps_down', 'started_from_pit_lane'.
+        Normalizes the race data by creating new columns for race performance, 'race_finish_position', 'is_dnf', 'laps_down', 'started_from_pit_lane', is_winner.
 
         Args:
             df (pd.DataFrame): The DataFrame to be normalized.
@@ -45,4 +44,9 @@ class Race_Normalizer:
             )
     
         # Create new column for starting from pit lane
-        active_df['started_from_pitlane'] = active_df['grid'].apply(lambda x: 1 if x == 'pit' else 0)   
+        active_df['started_from_pitlane'] = active_df['grid_position'].apply(lambda x: 1 if x == 'pit' else 0)
+
+        # Create new column for winner, 1 if the driver won the race, 0 otherwise
+        active_df['is_winner'] = (active_df['race_finish_position'] == 1).astype(int)   
+
+        return active_df   

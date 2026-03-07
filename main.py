@@ -6,13 +6,18 @@ project_root = Path(__file__).resolve().parents[0]
 sys.path.insert(0, str(project_root))   
 
 
-from f1_prediction_ml.pipelines.raw_data_collector import raw_data_collection_pipeline
+from f1_prediction_ml.pipelines.collect_raw_data_pipeline import raw_data_collection_pipeline
 from f1_prediction_ml.pipelines.raw_data_processor import raw_data_processing_pipeline
+from f1_prediction_ml.pipelines.normalizer import normalize_data
+from f1_prediction_ml.normalize.normalization_utils import get_list_of_sessions
 
-session_year = 2018
+session_year = 2024
 sessions = ['Australia', 'Bahrain', 'China', 'Azerbaijan', 'Spain', 'Monaco', 'Canada', 'France', 'Austria', 'Great Britain', 'Germany',
          'Hungary', 'Belgium', 'Italy', 'Singapore', 'Russia', 'Japan', 'United States', 'Mexico', 'Brazil', 'Abu Dhabi']
 session_type = ['FP1', 'FP2', 'FP3', 'SQ', 'Q', 'S', 'SS', 'R']
 
+list_of_sessions = get_list_of_sessions()
+
 # raw_data_collection_pipeline(session_year, sessions, session_type)
-raw_data_processing_pipeline(session_year, sessions, session_type)
+# raw_data_processing_pipeline(session_year, sessions, session_type)
+normalize_data(list_of_sessions)
