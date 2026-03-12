@@ -1,21 +1,9 @@
-import os
-import sys
-from pathlib import Path
+from f1_prediction_ml.features.features_utils import create_row_id
 
-# Add project root to Python path
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
-
-
-class FreePracticeNormalizer:
-    def __init__(self, processed_data_dir: str, normalize_data_dir: str):
-        self.processed_data_dir = processed_data_dir
-        self.normalize_data_dir = normalize_data_dir
-        os.makedirs(self.normalize_data_dir, exist_ok=True)
-
-    def normalize_free_practice_data(self, df):
+class FreePracticeFeatures:
+    def create_free_practice_features(self, df):
         """
-        Normalizes the free practice data by creating new columns for free practice performance, 'free_practice_best_lap_sec', 'free_practice_delta_to_session_best', 
+        Creates new features for free practice performance, 'free_practice_best_lap_sec', 'free_practice_delta_to_session_best', 
         and 'free_practice_percent_of_session_best'.
 
         Args:
@@ -32,4 +20,6 @@ class FreePracticeNormalizer:
         active_df['free_practice_delta_to_best_lap_sec'] = active_df['lap_best'] - active_df['best_free_practice_sec']
         active_df['free_practice_percent_of_best_lap_sec'] = active_df['lap_best'] / active_df['best_free_practice_sec'] * 100
 
+        create_row_id(active_df)
+        
         return active_df

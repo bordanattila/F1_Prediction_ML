@@ -17,11 +17,6 @@ YELLOW = "\033[33m"
 MAGENTA = "\033[35m"
 RESET = "\033[0m"
 
-# session_year = 2018
-# sessions = ['Australia', 'Bahrain', 'China', 'Azerbaijan', 'Spain', 'Monaco', 'Canada', 'France', 'Austria', 'Great Britain', 'Germany',
-#          'Hungary', 'Belgium', 'Italy', 'Singapore', 'Russia', 'Japan', 'United States', 'Mexico', 'Brazil', 'Abu Dhabi']
-# session_type = ['FP1', 'FP2', 'FP3', 'SQ', 'Q', 'S', 'SS', 'R']
-
 data_organizer = DataOrganizer(
     raw_data_dir=str(project_root / 'data/raw/raw_csv_files'),
     organized_data_dir=str(project_root / 'data/interim/organized_csv_files')

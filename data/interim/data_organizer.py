@@ -1,9 +1,11 @@
 import pandas as pd
 import os
-from data.interim.utils.data_organizer_utils import standardize_column_names, drop_unnecessary_columns, CYAN, RESET
+from pathlib import Path
+from data.interim.utils.data_organizer_utils import standardize_column_names, standardize_practice_session_names, CYAN, RESET
 from data.interim.aggregators.weather_aggregate import aggregate_weather_data 
 from data.interim.aggregators.track_status_aggregate import aggregate_track_status_data
 from data.interim.aggregators.laps_aggregate import aggregate_laps_data
+from f1_prediction_ml.ml_utils import remove_unnecessary_columns, create_list_of_sessions_file
 
 
 class DataOrganizer:
@@ -20,6 +22,8 @@ class DataOrganizer:
             year (int): The year of the season.
             grand_prix (str): The name of the grand prix.
             session_type (str): The type of session ('FP1', 'FP2', 'FP3', 'Q', 'S', 'SS', 'SQ', 'R').
+        Return:
+            pd.DataFrame: A DataFrame containing the organized session data.
         """
         grand_prix = grand_prix.replace(' ', '_')
 
@@ -42,7 +46,10 @@ class DataOrganizer:
         weather_df = standardize_column_names(weather_df)
         results_df = standardize_column_names(results_df)
         track_status_df = standardize_column_names(track_status_df)
-        session_info_df = standardize_column_names(session_info_df)        
+        session_info_df = standardize_column_names(session_info_df)  
+
+        # Standardize practice session names
+        session_info_df = standardize_practice_session_names(session_info_df)      
 
         # Merge data from cv files under a shared key into one DataFrame
         print(f'{CYAN}INFO: Confirm session_key to dataframes{RESET}')
@@ -55,9 +62,10 @@ class DataOrganizer:
 
         print(f'{CYAN}INFO: Results DataFrame{RESET}')
         print(f'{CYAN}************ Results DataFrame Head ***********{RESET}')
-        print(results_df.head())
         
-        results_df = drop_unnecessary_columns(results_df)
+        # Drop unnecessary columns from results_df before merging
+        cols = ['unnamed:_0', 'country_code', 'headshot_url', 'first_name', 'last_name', 'broadcast_name', 'full_name', 'time']
+        results_df = remove_unnecessary_columns(results_df, cols)
 
         weather_aggregated = aggregate_weather_data(weather_df)
         track_status_aggregated = aggregate_track_status_data(track_status_df)
@@ -74,23 +82,17 @@ class DataOrganizer:
         print(f'{CYAN}INFO: Merged DataFrame head:{RESET}')
         print(merged_df.head())
 
+
         # Save new DataFrame to a csv file in organized_data_dir for processing
         output_file = os.path.join(self.organized_data_dir, f'{year}_{grand_prix}_{session_type}_organized.csv')
         merged_df.to_csv(output_file, index=False)
         print(f'{CYAN}INFO: Organized data saved to {output_file}{RESET}')
 
         # Save list of processed session for further processing
-        list_of_files = os.path.join(self.organized_data_dir, 'list_of_files.csv')
-        filename = f'{year}_{grand_prix}_{session_type}_organized.csv'
-        if os.path.exists(list_of_files):
-            existing_files_df = pd.read_csv(list_of_files)
-            new_file_entry = pd.DataFrame({'filename': [filename]})
-            updated_files_df = pd.concat([existing_files_df, new_file_entry], ignore_index=True)
-            updated_files_df.to_csv(list_of_files, index=False)
-        else:
-            new_file_entry = pd.DataFrame({'filename': [filename]})
-            new_file_entry.to_csv(list_of_files, index=False)
-        print(f'{CYAN}INFO: Added {filename} to list of processed files{RESET}')
-        
+        filename = f'{year}_{grand_prix}_{session_type}'
+        project_root = Path(__file__).resolve().parents[2]
+        os.makedirs(project_root / 'data' / 'list_of_available_sessions', exist_ok=True)
+        target_data_dir = project_root / 'data' / 'list_of_available_sessions'
+        create_list_of_sessions_file(target_data_dir, 'list_of_organized_files.csv', filename)
 
         return merged_df

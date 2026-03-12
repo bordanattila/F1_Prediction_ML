@@ -18,34 +18,10 @@ def standardize_column_names(df):
     df.columns = [col.strip().replace(' ', '_').lower() for col in df.columns]
     return df
 
-# Drop unnecessary columns
-def drop_unnecessary_columns(df):
+# Standardize practice session names (Practice 1 -> Practice_1, Practice 2 -> Practice_2, Practice 3 -> Practice_3)
+def standardize_practice_session_names(df):
     """
-    Drops unnecessary columns from the DataFrame.
+    Standardizes practice session names by replacing 'Practice 1', 'Practice 2', 'Practice 3' with 'Practice_1', 'Practice_2', 'Practice_3'.
     """
-    cols = ['unnamed:_0', 'country_code', 'headshot_url', 'first_name', 'last_name', 'broadcast_name', 'full_name', 'time']
-    return df.drop(columns=cols, errors='ignore')
-
-# # Create a new column indicating finished position if 'status' is 'Finished' or '+X Laps'
-# def create_finished_position_column(df):
-#     """
-#     Creates a new column 'finished_position' indicating the finishing position of the driver if 'status' is 'Finished' or '+X Laps'.
-#     If 'status' is 'Finished', 'finished_position' is set to the value in the 'position' column.
-#     If 'status' contains '+X Laps', 'finished_position' is set to the value in the 'position' column.
-#     For all other statuses, 'finished_position' is set to NaN.
-#     """
-#     def calculate_finished_position(row):
-#         if row['status'] == 'Finished':
-#             return row['position']
-#         elif isinstance(row['status'], str) and row['status'].startswith('+') and row['status'].endswith('Laps'):
-#             try:
-#                 laps_down = int(row['status'][1:-5].strip())
-#                 return row['position'] 
-#             except ValueError:
-#                 return None
-#         else:
-#             return None
-
-#     df['finished_position'] = df.apply(calculate_finished_position, axis=1)
-#     return df
-
+    df['session_type'] = df['session_type'].replace({'Practice 1': 'Practice_1', 'Practice 2': 'Practice_2', 'Practice 3': 'Practice_3'})
+    return df
