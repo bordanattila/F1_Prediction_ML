@@ -31,6 +31,7 @@ wheels/
 fastf1_cache/
 /tmp/fastf1_cache/
 fastf1_http_cache.sqlite
+*.ff1pkl
 
 # Cached data
 cache/

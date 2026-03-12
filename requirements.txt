@@ -1,0 +1,12 @@
+# F1 Prediction ML - Dependencies
+
+# Data manipulation and analysis
+pandas>=2.0.0
+
+# FastF1 - F1 data API wrapper
+fastf1>=3.0.0
+
+# Jupyter notebooks (for development/EDA)
+jupyter>=1.0.0
+notebook>=7.0.0
+
