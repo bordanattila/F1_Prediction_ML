@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 from pathlib import Path
-from data.interim.utils.data_organizer_utils import standardize_column_names, standardize_practice_session_names, CYAN, RESET
+from data.interim.utils.data_organizer_utils import standardize_column_names, standardize_session_names, fill_missing_driver_id, CYAN, RESET
 from data.interim.aggregators.weather_aggregate import aggregate_weather_data 
 from data.interim.aggregators.track_status_aggregate import aggregate_track_status_data
 from data.interim.aggregators.laps_aggregate import aggregate_laps_data
@@ -48,8 +48,11 @@ class DataOrganizer:
         track_status_df = standardize_column_names(track_status_df)
         session_info_df = standardize_column_names(session_info_df)  
 
-        # Standardize practice session names
-        session_info_df = standardize_practice_session_names(session_info_df)      
+        # Fill missing driver_id with last_name in results_df
+        results_df = fill_missing_driver_id(results_df)
+
+        # Standardize session names
+        session_info_df = standardize_session_names(session_info_df)      
 
         # Merge data from cv files under a shared key into one DataFrame
         print(f'{CYAN}INFO: Confirm session_key to dataframes{RESET}')
@@ -93,6 +96,6 @@ class DataOrganizer:
         project_root = Path(__file__).resolve().parents[2]
         os.makedirs(project_root / 'data' / 'list_of_available_sessions', exist_ok=True)
         target_data_dir = project_root / 'data' / 'list_of_available_sessions'
-        create_list_of_sessions_file(target_data_dir, 'list_of_organized_files.csv', filename)
+        create_list_of_sessions_file(target_data_dir, 'list_of_organized_files.csv', filename, source='organized')
 
         return merged_df

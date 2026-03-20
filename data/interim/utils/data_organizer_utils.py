@@ -1,3 +1,5 @@
+import pandas as pd
+
 # Color codes
 CYAN = "\033[36m"
 YELLOW = "\033[33m"
@@ -18,10 +20,41 @@ def standardize_column_names(df):
     df.columns = [col.strip().replace(' ', '_').lower() for col in df.columns]
     return df
 
-# Standardize practice session names (Practice 1 -> Practice_1, Practice 2 -> Practice_2, Practice 3 -> Practice_3)
-def standardize_practice_session_names(df):
+# Normalize common session names
+def standardize_session_names(df):
     """
-    Standardizes practice session names by replacing 'Practice 1', 'Practice 2', 'Practice 3' with 'Practice_1', 'Practice_2', 'Practice_3'.
+    Normalizes session names by replacing 'Practice 1', 'Practice 2', 'Practice 3', 'Qualifying', 'Race', 'Sprint', 'Sprint Qualifying',
+    'Sprint Shootout' with 'FP1', 'FP2', 'FP3', 'Q', 'R', 'S', 'SQ', 'SS' respectively.
+    Args:
+        df (pd.DataFrame): The DataFrame containing the session_type column to be normalized.
+    Returns:
+        pd.DataFrame: The DataFrame with the session_type column normalized."""
+    df["session_type"] = (
+        df["session_type"]
+        .astype(str)
+        .str.strip()
+        .replace({
+            "Practice 1": "FP1",
+            "Practice 2": "FP2",
+            "Practice 3": "FP3",
+            "Qualifying": "Q",
+            "Race": "R",
+            "Sprint": "S",
+            "Sprint Qualifying": "SQ",
+            "Sprint Shootout": "SS",
+        })
+    )
+
+    return df
+
+
+# Replace missing driver_id with last_name
+def fill_missing_driver_id(df):
     """
-    df['session_type'] = df['session_type'].replace({'Practice 1': 'Practice_1', 'Practice 2': 'Practice_2', 'Practice 3': 'Practice_3'})
+    Fills missing driver_id values with the corresponding last_name values.
+    Args:
+        df (pd.DataFrame): The DataFrame containing the driver_id and last_name columns.
+    Returns:
+        pd.DataFrame: The DataFrame with missing driver_id values filled."""
+    df['driver_id'] = df.apply(lambda row: row['last_name'].lower() if pd.isna(row['driver_id']) else row['driver_id'], axis=1)
     return df

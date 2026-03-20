@@ -2,6 +2,7 @@
 This is a script that iterates through the list of races and utilises the RawDataCollector class to pull data from FastF1.
 """
 import sys
+import os
 from pathlib import Path
 import time
 import fastf1 as f1
@@ -48,6 +49,7 @@ def raw_data_collection_pipeline(session_year, sessions, session_type):
             
             # Save the fetched data to CSV files
             output_dir = project_root / 'data/raw/raw_csv_files'
+            os.makedirs(output_dir, exist_ok=True)
             session_data['laps'].to_csv(output_dir / f'{session_year}_{session_name}_{ses_type}_laps.csv')
             session_data['weather_data'].to_csv(output_dir / f'{session_year}_{session_name}_{ses_type}_weather.csv')
             session_data['results'].to_csv(output_dir / f'{session_year}_{session_name}_{ses_type}_results.csv')
