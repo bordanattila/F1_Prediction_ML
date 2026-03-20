@@ -58,7 +58,7 @@ def remove_unnecessary_columns(df, columns_to_remove):
     return df.drop(columns=columns_to_remove, errors='ignore')
 
 # Create list of sessions for which we have data
-def create_list_of_sessions_file(target_data_dir, target_file_name, input_filename):
+def create_list_of_sessions_file(target_data_dir, target_file_name, input_filename, source):
     """
     Creates a list of sessions for which we have data.
     Args:
@@ -72,10 +72,34 @@ def create_list_of_sessions_file(target_data_dir, target_file_name, input_filena
     
     if os.path.exists(list_of_files):
         existing_files_df = pd.read_csv(list_of_files)
+        # Only add if not already in the list
+        if input_filename in existing_files_df['filename'].values:
+            return
         new_file_entry = pd.DataFrame({'filename': [input_filename]})
         updated_files_df = pd.concat([existing_files_df, new_file_entry], ignore_index=True)
         updated_files_df.to_csv(list_of_files, index=False)
     else:
         new_file_entry = pd.DataFrame({'filename': [input_filename]})
         new_file_entry.to_csv(list_of_files, index=False)
-    print(f'{CYAN}INFO: Added {input_filename} to list of processed files{RESET}')
+    print(f'{CYAN}INFO: Added {input_filename} to list of {source} files{RESET}')
+
+def create_row_id(df):
+    """
+    Creates a unique row_id for each row in the DataFrame by concatenating event_id, session_type and driver_number.
+    Args:
+        df (pd.DataFrame): The DataFrame containing the session data.
+    Returns:
+        pd.DataFrame: A DataFrame containing the session data with a new row_id column.
+    """
+
+    # Get year from date column and add to dataframe
+    df['year'] = df['date'].str.split('-').str[0]
+    # Create event_id by concatenating year and grand_prix
+    grand_prix = df['grand_prix'].iloc[0].replace(' ', '_')
+    df['event_id'] = df['year'] + '_' + grand_prix
+    # Create session_id by concatenating event_id and session_type
+    df['session_id'] = df['event_id'] + '_' + df['session_type']
+    # Create row_id by concatenating session_id and driver_number
+    df['row_id'] = df['session_id'] + '_' + df['driver_number'].astype(str)
+
+    return df
