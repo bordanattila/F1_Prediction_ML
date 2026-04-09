@@ -13,15 +13,22 @@ sys.path.insert(0, str(project_root))
 
 from f1_prediction_ml.ml_utils import get_list_of_sessions
 
-# Color codes
-CYAN = "\033[36m"
-RESET = "\033[0m"
+from f1_prediction_ml.colors import CYAN, RESET
  
 data_path = project_root / 'data' / 'processed' / 'normalized_csv_files'
 
 list_of_sessions = get_list_of_sessions('list_of_normalized_files.csv')
 
 def concatenate_master_log_csv_files(list_of_sessions):
+    """
+    Concatenate all normalized session CSVs into a single master log DataFrame and save it to disk.
+
+    Args:
+        list_of_sessions: List of session identifiers (e.g. '2022_Bahrain_FP1') whose
+            normalized CSVs will be loaded and concatenated.
+    Returns:
+        pd.DataFrame: The concatenated master log DataFrame.
+    """
     dataframes = []
     for session in list_of_sessions:
         file_path = f'{data_path}/{session}_normalized.csv'

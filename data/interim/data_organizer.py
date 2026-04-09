@@ -9,7 +9,14 @@ from f1_prediction_ml.ml_utils import remove_unnecessary_columns, create_list_of
 
 
 class DataOrganizer:
+    """Merges raw CSV files (laps, weather, results, track status, session info) into a single organized DataFrame per session."""
+
     def __init__(self, raw_data_dir: str, organized_data_dir: str):
+        """
+        Args:
+            raw_data_dir: Directory containing raw CSV files from FastF1.
+            organized_data_dir: Directory where organized session CSVs are saved.
+        """
         self.raw_data_dir = raw_data_dir
         self.organized_data_dir = organized_data_dir
         os.makedirs(self.organized_data_dir, exist_ok=True)
@@ -81,7 +88,7 @@ class DataOrganizer:
             .merge(track_status_aggregated, on='session_key', how='left') \
             .merge(session_info_df, on='session_key', how='left')
         print(f'{CYAN}INFO: Merged DataFrame info:{RESET}')
-        print(merged_df.info())
+        # print(merged_df.info())
         print(f'{CYAN}INFO: Merged DataFrame head:{RESET}')
         print(merged_df.head())
 

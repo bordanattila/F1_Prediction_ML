@@ -11,11 +11,7 @@ sys.path.insert(0, str(project_root))
 
 from data.interim.data_organizer import DataOrganizer
 
-# Color codes
-CYAN = "\033[36m"
-YELLOW = "\033[33m"
-MAGENTA = "\033[35m"
-RESET = "\033[0m"
+from f1_prediction_ml.colors import CYAN, YELLOW, MAGENTA, RESET
 
 data_organizer = DataOrganizer(
     raw_data_dir=str(project_root / 'data/raw/raw_csv_files'),
@@ -23,7 +19,16 @@ data_organizer = DataOrganizer(
 )
 
 def raw_data_processing_pipeline(session_year, sessions, session_type):
-    # Iterate through the list of races and session types
+    """
+    Organize raw CSV files into structured session DataFrames using DataOrganizer.
+
+    Args:
+        session_year: Season year (e.g. 2022).
+        sessions: List of Grand Prix names (e.g. ['Bahrain', 'Monaco']).
+        session_type: List of session codes to process (e.g. ['FP1', 'Q', 'R']).
+    """
+    print(f'{MAGENTA}********** Session: {sessions} **********{RESET}')
+    print(f'{MAGENTA}********** Session Type: {session_type} **********{RESET}')
     for session_name in sessions:
         session_name = session_name.replace(' ', '_')
         print(f'{CYAN}********** Processing session: {session_name} **********{RESET}')

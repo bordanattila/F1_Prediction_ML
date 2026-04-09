@@ -2,6 +2,7 @@
 This is a script that loads cvs files for feature engineering. Each session type is processed separately.
 """
 
+from functools import reduce
 import sys
 import os
 from pathlib import Path
@@ -14,7 +15,8 @@ sys.path.insert(0, str(project_root))
 from f1_prediction_ml.features.features_quali import QualifyingFeatures
 from f1_prediction_ml.features.features_race import RaceFeatures
 from f1_prediction_ml.features.features_free_practice import FreePracticeFeatures
-from f1_prediction_ml.ml_utils import CYAN, MAGENTA, YELLOW, RESET, create_list_of_sessions_file, get_list_of_sessions, remove_unnecessary_columns
+from f1_prediction_ml.colors import CYAN, MAGENTA, YELLOW, RESET
+from f1_prediction_ml.ml_utils import create_list_of_sessions_file, get_list_of_sessions, remove_unnecessary_columns
 from f1_prediction_ml.features.features_utils import concatenate_session_dfs
 
 BASE_ID_COLS = [
@@ -33,7 +35,32 @@ SESSION_METRICS = [
     'disruption_ratio'
 ]
 
+# Merge keys for combining session data into model training data. These should be present in all session master files 
+# and uniquely identify each row.
+KEYS = ['event_id', 'driver_id']
+
+# Columns that should only come from the base race table. These are metadata columns and target variable columns that we want to ensure 
+# only come from the race table to avoid any issues with missing values or inconsistencies across session files.
+BASE_META_COLS = [
+    'year',
+    'grand_prix',
+    'event_id',
+    'row_id',
+    'driver_id',
+    'abbreviation',
+    'team_name',
+    'team_id',
+]
+
 def create_features_per_session(list_of_sessions):
+    """
+    Load each normalized session CSV and generate prefixed feature columns based on session type.
+
+    Results are grouped by session type and saved as session master CSVs.
+
+    Args:
+        list_of_sessions: List of session identifiers whose normalized CSVs will be loaded.
+    """
     data_frames = {}
     
     for session in list_of_sessions:
@@ -63,24 +90,98 @@ def create_features_per_session(list_of_sessions):
 
 
 def concatenate_model_training_data(list_of_sessions):
+    """
+    Merge session master CSVs (race, qualifying, free practice, etc.) into a single
+    model-training DataFrame keyed on (event_id, driver_id).
+
+    The race table is used as the base; all other sessions are left-joined onto it.
+
+    Args:
+        list_of_sessions: List of session master filenames (e.g. 'race_master_df.csv').
+    Returns:
+        pd.DataFrame: The merged model training DataFrame.
+    """
     data_path = project_root / 'data' / 'processed' / 'session_master_files'
-    dataframes = []
+    session_tables = {}
     for session in list_of_sessions:
         file_path = f'{data_path}/{session.lower()}'
         df = pd.read_csv(file_path)
-        dataframes.append(df)
-    
-    master_log_df = pd.concat(dataframes, ignore_index=True)
+
+        # Define merge keys 
+        KEYS = ['event_id', 'driver_id'] 
+        missing = [c for c in KEYS if c not in df.columns]
+        if missing:
+            raise ValueError(f'{session} missing merge keys: {missing}')
+
+        # Enforce 1 row per key per session file
+        if df.duplicated(KEYS).any():
+            duplicates = df[df.duplicated(KEYS, keep=False)].sort_values(KEYS)
+            raise ValueError(f'{session} has duplicate rows per {KEYS}. Example:\n{duplicates.head(10)}')
+        
+        session_lower = session.lower()
+
+        if session_lower == "race_master_df.csv":
+            # Keep metadata + race columns only from race table
+            race_cols = [c for c in df.columns if c in BASE_META_COLS or c.startswith("race_")]
+            session_tables["race"] = df[race_cols].copy()
+
+        elif session_lower == "fp1_master_df.csv":
+            fp1_cols = KEYS + [c for c in df.columns if c.startswith("fp1_")]
+            session_tables["fp1"] = df[fp1_cols].copy()
+
+        elif session_lower == "fp2_master_df.csv":
+            fp2_cols = KEYS + [c for c in df.columns if c.startswith("fp2_")]
+            session_tables["fp2"] = df[fp2_cols].copy()
+
+        elif session_lower == "fp3_master_df.csv":
+            fp3_cols = KEYS + [c for c in df.columns if c.startswith("fp3_")]
+            session_tables["fp3"] = df[fp3_cols].copy()
+
+        elif session_lower == "qualifying_master_df.csv":
+            q_cols = KEYS + [c for c in df.columns if c.startswith("quali_")]
+            session_tables["q"] = df[q_cols].copy()
+
+        elif session_lower == "sprint_qualifying_master_df.csv":
+            sq_cols = KEYS + [c for c in df.columns if c.startswith("sq_")]
+            session_tables["sq"] = df[sq_cols].copy()
+
+        elif session_lower == "sprint_race_master_df.csv":
+            s_cols = KEYS + [c for c in df.columns if c.startswith("sprint_")]
+            session_tables["s"] = df[s_cols].copy()
+        
+        elif session_lower == "sprint_shootout_master_df.csv":
+            s_cols = KEYS + [c for c in df.columns if c.startswith("sprint_")]
+            session_tables["ss"] = df[s_cols].copy()
+
+        else:
+            print(f'{YELLOW}Skipping unsupported session: {session}{RESET}')
+
+    if 'race' not in session_tables:
+        raise ValueError('Race table ("race") is required as the base table.')
+
+    # Start from race table so final rows represent actual race entrants
+    model_training_data = session_tables['race'].copy()
+
+    # Merge pre-race sessions onto race entrants
+    merge_order = ['q', 'sq', 's', 'ss', 'fp1', 'fp2', 'fp3',]
+
+    for name in merge_order:
+        if name in session_tables:
+            model_training_data = model_training_data.merge(
+                session_tables[name],
+                on=KEYS,
+                how='left'
+            )
 
     os.makedirs(project_root / 'data' / 'processed', exist_ok=True)
-    master_log_df.to_csv(project_root / 'data' / 'processed' / 'master_log_df.csv', index=False)
+    model_training_data.to_csv(project_root / 'data' / 'processed' / 'model_training_data.csv', index=False)
 
-    print(f'{CYAN}INFO: Concatenated DataFrame saved to {project_root / 'data' / 'processed' / 'master_log_df.csv'}{RESET}')
+    print(f'{CYAN}INFO: Concatenated DataFrame saved to {project_root / 'data' / 'processed' / 'model_training_data.csv'}{RESET}')
     print(f'{CYAN}INFO: Concatenated DataFrame info:{RESET}')
-    print(master_log_df.info())
+    print(model_training_data.info())
     print(f'{CYAN}INFO: Concatenated DataFrame head:{RESET}')
-    print(master_log_df.head())
+    print(model_training_data.head())
     print(f'{CYAN}INFO: Concatenated DataFrame shape:{RESET}')
-    print(master_log_df.shape)
+    print(model_training_data.shape)
 
-    return master_log_df
+    return model_training_data

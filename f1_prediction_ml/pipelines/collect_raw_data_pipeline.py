@@ -13,16 +13,19 @@ sys.path.insert(0, str(project_root))
 
 from data.raw.raw_data_collector import RawDataCollector
 
-# Color codes
-CYAN = "\033[36m"
-YELLOW = "\033[33m"
-MAGENTA = "\033[35m"
-RESET = "\033[0m"
+from f1_prediction_ml.colors import CYAN, YELLOW, MAGENTA, RESET
 
 data_collector = RawDataCollector(cache_dir=str(project_root))
 
 def raw_data_collection_pipeline(session_year, sessions, session_type):
-    # Iterate through the list of races and session types
+    """
+    Fetch raw session data from FastF1 for every (race, session_type) combination and save as CSVs.
+
+    Args:
+        session_year: Season year (e.g. 2022).
+        sessions: List of Grand Prix names (e.g. ['Bahrain', 'Monaco']).
+        session_type: List of session codes to fetch (e.g. ['FP1', 'Q', 'R']).
+    """
     for session_name in sessions:
         session_name = session_name.replace(' ', '_')
         print(f'{CYAN}********** Processing session: {session_name} **********{RESET}')
@@ -55,7 +58,7 @@ def raw_data_collection_pipeline(session_year, sessions, session_type):
             session_data['results'].to_csv(output_dir / f'{session_year}_{session_name}_{ses_type}_results.csv')
             session_data['track_status'].to_csv(output_dir / f'{session_year}_{session_name}_{ses_type}_track_status.csv')
             # Replace spaces with underscores in session type for consistency in file naming
-            session_data['session_info']['SessionType'] = session_data['session_info']['SessionType'].replace(' ', '_')
+            session_data['session_info']['SessionName'] = session_data['session_info']['ResolvedSessionName'].replace(' ', '_')
             session_data['session_info'].to_csv(output_dir / f'{session_year}_{session_name}_{ses_type}_session_info.csv')
             print(f"{CYAN}INFO: Saved data for {session_year} {session_name} {ses_type} session to CSV files.{RESET}")
         

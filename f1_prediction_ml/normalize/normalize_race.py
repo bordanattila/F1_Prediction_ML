@@ -2,6 +2,8 @@ from f1_prediction_ml.ml_utils import remove_unnecessary_columns, create_row_id
 import re
 
 class RaceNormalizer:
+    """Cleans race data and derives outcome columns (DNF, laps down, pit-lane start, winner flag)."""
+
     def normalize_race_data(self, df):
         """ 
         Normalizes the race data by removing columns that are not relevant for race performance.

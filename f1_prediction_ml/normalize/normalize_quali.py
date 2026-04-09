@@ -1,6 +1,8 @@
 from f1_prediction_ml.ml_utils import convert_time_columns_to_seconds, remove_unnecessary_columns, create_row_id
 
 class QualifyingNormalizer:
+    """Converts qualifying times to seconds and adds pole-relative performance metrics."""
+
     def normalize_quali_data(self, df):
         """
         Normalizes qualifying data by converting time columns to seconds and removing columns that are not relevant for free practice performance.

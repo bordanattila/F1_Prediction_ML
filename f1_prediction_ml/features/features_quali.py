@@ -1,11 +1,13 @@
 from f1_prediction_ml.features.features_utils import create_row_id
 
-QUALI_SEESION_METRICS = ['reached_q1', 'reached_q2', 'reached_q3', 'best_quali_seconds', 'quali_delta_to_pole', 'quali_percent_of_pole']
+QUALI_SEESION_METRICS = ['reached_q1', 'reached_q2', 'reached_q3', 'best_quali_seconds', 'quali_delta_to_pole', 'quali_percent_of_pole', 'quali_finish_position']
 
 class QualifyingFeatures:
+    """Derives prefixed feature columns (quali_, sprint_quali_) from normalized qualifying data."""
+
     def create_quali_features(self, df, session_metrics, base_id_cols):
         """
-        Creates new features for qualifying performance reached_q1, reached_q2, reached_q3, best_quali_seconds, quali_delta_to_pole, and quali_percent_of_pole.
+        Creates new features for qualifying performance reached_q1, reached_q2, reached_q3, best_quali_seconds, quali_delta_to_pole, quali_finish_position, and quali_percent_of_pole.
 
         Args:
             df (pd.DataFrame): The DataFrame to be normalized.

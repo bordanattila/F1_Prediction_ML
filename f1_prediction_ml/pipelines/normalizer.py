@@ -10,11 +10,18 @@ sys.path.insert(0, str(project_root))
 from f1_prediction_ml.normalize.normalize_free_practice import FreePracticeNormalizer
 from f1_prediction_ml.normalize.normalize_quali import QualifyingNormalizer
 from f1_prediction_ml.normalize.normalize_race import RaceNormalizer
-from f1_prediction_ml.ml_utils import CYAN, RESET, remove_unnecessary_columns, create_list_of_sessions_file
+from f1_prediction_ml.colors import CYAN, RESET
+from f1_prediction_ml.ml_utils import remove_unnecessary_columns, create_list_of_sessions_file
 
 columns_to_remove = ['vsc_duration', 'vsc_ending_duration', 'sc_duration', 'not_green_duration', 'total_duration']
 
 def normalize_data(list_of_sessions):
+    """
+    Normalize each organized session CSV by delegating to the appropriate session-type normalizer.
+
+    Args:
+        list_of_sessions: List of session identifiers whose organized CSVs will be normalized.
+    """
     for session in list_of_sessions:
         file_path = f'{project_root}/data/interim/organized_csv_files/{session}_organized.csv'
         df = pd.read_csv(file_path)
@@ -42,6 +49,14 @@ def normalize_data(list_of_sessions):
             print(f'Unknown session type: {session_type}')
 
 def concatenate_master_log_csv_files(list_of_sessions):
+    """
+    Concatenate all normalized session CSVs into a single master log DataFrame.
+
+    Args:
+        list_of_sessions: List of session identifiers to concatenate.
+    Returns:
+        pd.DataFrame: The concatenated master log DataFrame.
+    """
     data_path = project_root / 'data' / 'processed' / 'normalized_csv_files'
     dataframes = []
     for session in list_of_sessions:

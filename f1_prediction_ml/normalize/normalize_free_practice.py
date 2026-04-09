@@ -1,6 +1,8 @@
 from f1_prediction_ml.ml_utils import remove_unnecessary_columns, create_row_id
 
 class FreePracticeNormalizer:
+    """Cleans free practice data and adds session-relative performance metrics (delta to best, percent of best)."""
+
     def normalize_free_practice_data(self, df):
         """
         Normalizes the free practice data by removing columns that are not relevant and create new columns for free practice performance.
