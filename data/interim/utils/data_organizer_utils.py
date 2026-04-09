@@ -1,10 +1,6 @@
 import pandas as pd
 
-# Color codes
-CYAN = "\033[36m"
-YELLOW = "\033[33m"
-MAGENTA = "\033[35m"
-RESET = "\033[0m"
+from f1_prediction_ml.colors import CYAN, YELLOW, MAGENTA, RESET
 
 # Normalize common column names
 def standardize_column_names(df):

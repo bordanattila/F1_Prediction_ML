@@ -2,11 +2,7 @@ import os
 from pathlib import Path
 import pandas as pd
 
-# Color codes
-CYAN = "\033[36m"
-YELLOW = "\033[33m"
-MAGENTA = "\033[35m"
-RESET = "\033[0m"
+from f1_prediction_ml.colors import CYAN, YELLOW, RESET
 
 SESSION_TYPE_TO_FILENAME = {
     'FP1': 'fp1_master_df.csv',

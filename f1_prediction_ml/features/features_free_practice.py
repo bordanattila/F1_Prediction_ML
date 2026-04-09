@@ -3,6 +3,8 @@ from f1_prediction_ml.features.features_utils import create_row_id
 FP_SEESION_METRICS = ['best_free_practice_sec', 'free_practice_delta_to_best_lap_sec', 'free_practice_percent_of_best_lap_sec']
 
 class FreePracticeFeatures:
+    """Derives prefixed feature columns (fp1_, fp2_, fp3_) from normalized free practice data."""
+
     def create_free_practice_features(self, df, session_metrics, base_id_cols):
         """
         Creates new features for free practice sessions by prefixing the session metrics with the session type (e.g., 'fp1_lap_mean', 'fp2_lap_mean', etc.) and keeping only the relevant columns.

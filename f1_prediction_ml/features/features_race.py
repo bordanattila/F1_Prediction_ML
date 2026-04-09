@@ -3,6 +3,8 @@ from f1_prediction_ml.features.features_utils import create_row_id
 
 RACE_SESSION_METRICS = ['race_finish_position', 'is_dnf', 'laps_down', 'started_from_pit_lane', 'is_winner', 'finish_position_relative_to_grid_start_position']
 class RaceFeatures:
+    """Derives prefixed feature columns (race_, sprint_, sprint_shoot_) and engineered race metrics from normalized race data."""
+
     def create_race_features(self, df, session_metrics, base_id_cols):
         """
         Creates new features for race performance, 'race_finish_position', 'is_dnf', 'laps_down', 'started_from_pit_lane', is_winner.
