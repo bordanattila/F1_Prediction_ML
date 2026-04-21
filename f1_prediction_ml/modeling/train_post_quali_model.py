@@ -4,6 +4,9 @@ from pathlib import Path
 import pandas as pd
 import joblib
 
+from f1_prediction_ml.colors import CYAN, RESET
+
+from sklearn.model_selection import train_test_split, KFold, cross_validate
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
@@ -11,8 +14,9 @@ from sklearn.impute import SimpleImputer
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error, get_scorer_names
 
-from f1_prediction_ml.colors import CYAN, YELLOW, MAGENTA, RESET
+from sklearn.inspection import permutation_importance
 
 # Add project root to Python path
 project_root = Path(__file__).resolve().parents[2]
@@ -45,7 +49,11 @@ def train_and_save_model(train_df: pd.DataFrame):
 
     features = numeric_features + categorical_features 
 
-    # preprocessing
+    X_train = df[features]
+    y_train = df[target]
+
+# preprocessing
+
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='median')),
         ('scalar', StandardScaler())
@@ -59,22 +67,18 @@ def train_and_save_model(train_df: pd.DataFrame):
     preprocess = ColumnTransformer(transformers=[
         ('num', numeric_transformer, numeric_features),
         ('cat', categorical_transformer, categorical_features),
+        ('spe', 'passthrough', special_feature)
     ], remainder='drop')
-
-    X_train = train_df[features]
-    y_train = train_df[target]
-
-    model = RandomForestClassifier(
-        n_estimators=300,
-        max_depth=None,
-        min_samples_leaf=1,
-        random_state=42,
-        class_weight='balanced'
-    )
 
     model_pipeline = Pipeline(steps=[
         ('preprocess', preprocess),
-        ('model', model)
+        ('model', RandomForestClassifier(
+            n_estimators=300,
+            max_depth=None,
+            min_samples_leaf=1,
+            random_state=42,
+            class_weight="balanced",
+        ))
     ])
 
     model_pipeline.fit(X_train, y_train)
