@@ -1,5 +1,8 @@
 import numpy as np
 import pandas as pd
+import sys
+import os
+from pathlib import Path
 
 from sklearn.model_selection import GroupKFold
 from sklearn.compose import ColumnTransformer
@@ -14,6 +17,11 @@ from sklearn.metrics import (
 )
 
 from f1_prediction_ml.colors import CYAN, MAGENTA, RESET
+
+# Add project root to Python path
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root)) 
+os.makedirs( project_root / 'data' / 'model_evaluation_summaries', exist_ok=True)
 
 def model_evaluation(
     df: pd.DataFrame,
@@ -199,12 +207,16 @@ def model_evaluation(
             'n_test_events': predicted_winners['event_id'].nunique(),
         })
 
-    # 8. Summary
+    # 8. Fold-level results
     results_df = pd.DataFrame(fold_results)
 
+    # Save fold-by-fold results for Tableau
+    results_df.to_csv(f'{project_root}/data/model_evaluation_summaries/fold_results_{model.__class__.__name__}.csv', index=False)
+    results_df.to_json(f'{project_root}/data/model_evaluation_summaries/fold_results_{model.__class__.__name__}.json', orient='records')
+
+    # 9. Summary results
     summary = {
         'model_name': model.__class__.__name__,
-        'fold_results': results_df,
         'mean_accuracy': results_df['accuracy'].mean(),
         'std_accuracy': results_df['accuracy'].std(),
         'mean_f1': results_df['f1'].mean(),
@@ -215,9 +227,12 @@ def model_evaluation(
         'std_log_loss': results_df['log_loss'].std(),
         'mean_winner_pick_accuracy': results_df['winner_pick_accuracy'].mean(),
         'std_winner_pick_accuracy': results_df['winner_pick_accuracy'].std(),
+        'total_folds': len(results_df),
+        'total_test_rows': results_df['n_test_rows'].sum(),
+        'total_test_events': results_df['n_test_events'].sum(),
     }
 
-    # 9. Pretty print
+    # 10. Pretty print
     print(f'\nModel: {summary['model_name']}')
     print(f'CV Accuracy: {summary['mean_accuracy']:.4f} ± {summary['std_accuracy']:.4f}')
     print(f'CV F1: {summary['mean_f1']:.4f} ± {summary['std_f1']:.4f}')
@@ -227,15 +242,21 @@ def model_evaluation(
         f'CV Winner Pick Accuracy: '
         f'{summary['mean_winner_pick_accuracy']:.4f} ± {summary['std_winner_pick_accuracy']:.4f}'
     )
-    
+
+    # Save summary in csv for Tableau
+
+    summary_df = pd.DataFrame([summary])
+    summary_df.to_csv(f'{project_root}/data/model_evaluation_summaries/model_evaluation_summary_{summary['model_name']}.csv', index=False)
+    summary_df.to_json(f'{project_root}/data/model_evaluation_summaries/model_evaluation_summary_{summary['model_name']}.json', orient='records')
+
     return summary, classifier
 
 
 def inspect_feature_importance(pipeline):
     """Inspect feature importance for tree-based models."""
 
-    model = pipeline.named_steps["model"]
-    feature_names = pipeline.named_steps["preprocessor"].get_feature_names_out()
+    model = pipeline.named_steps['model']
+    feature_names = pipeline.named_steps['preprocessor'].get_feature_names_out()
 
     importances = pd.Series(
         model.feature_importances_,
@@ -243,3 +264,8 @@ def inspect_feature_importance(pipeline):
     ).sort_values(ascending=False)
     print(f'{MAGENTA} {model.__class__.__name__} {RESET} {CYAN} INFO: Top 25 features by importance:{RESET}')
     print(importances.head(25))
+
+    # Save feature importance in csv for Tableau
+    feature_importance_df = importances.reset_index()
+    feature_importance_df.to_csv(f'{project_root}/data/model_evaluation_summaries/feature_importance_{model.__class__.__name__}.csv', index=False)
+    feature_importance_df.to_json(f'{project_root}/data/model_evaluation_summaries/feature_importance_{model.__class__.__name__}.json', orient='records')

@@ -5,14 +5,14 @@ def build_next_race_features(next_race_df: pd.DataFrame) -> pd.DataFrame:
     next_race_df must already contain one row per driver for the upcoming event,
     with the same engineered features used during training.
     """
-    required_id_cols = ["event_id", "driver_id", "driver_name"]
+    required_id_cols = ['event_id', 'driver_id', 'abbreviation']
 
     missing = [col for col in required_id_cols if col not in next_race_df.columns]
     if missing:
-        raise ValueError(f"Missing required columns in next race dataframe: {missing}")
+        raise ValueError(f'Missing required columns in next race dataframe: {missing}')
 
-    if next_race_df.duplicated(["event_id", "driver_id"]).any():
-        raise ValueError("next_race_df must contain only one row per event_id + driver_id")
+    if next_race_df.duplicated(['event_id', 'driver_id']).any():
+        raise ValueError('next_race_df must contain only one row per event_id + driver_id')
 
     return next_race_df.copy()
 
