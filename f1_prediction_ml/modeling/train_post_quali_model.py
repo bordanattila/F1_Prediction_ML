@@ -22,7 +22,7 @@ df = pd.read_csv(project_root / 'data' / 'processed' / 'model_training_data.csv'
 
 def train_and_save_model(train_df: pd.DataFrame):
     target = 'race_is_winner'
-    group_col = "event_id"
+    group_col = 'event_id'
 
     numeric_features = ['year','fp1_lap_count', 'fp1_lap_mean', 'fp1_lap_std', 'fp1_lap_best', 'fp1_lap_median', 'fp1_air_temp_mean', 'fp1_air_temp_std', 
                         'fp1_track_temp_mean', 'fp1_track_temp_std', 'fp1_humidity_mean', 'fp1_humidity_std', 'fp1_wind_speed_mean', 'fp1_wind_speed_std',
@@ -69,7 +69,7 @@ def train_and_save_model(train_df: pd.DataFrame):
         max_depth=None,
         min_samples_leaf=1,
         random_state=42,
-        class_weight="balanced"
+        class_weight='balanced'
     )
 
     model_pipeline = Pipeline(steps=[
@@ -80,10 +80,10 @@ def train_and_save_model(train_df: pd.DataFrame):
     model_pipeline.fit(X_train, y_train)
 
     artifact = {
-        "model": model_pipeline,
-        "feature_cols": features,
-        "target": target,
-        "group_col": group_col,
+        'model': model_pipeline,
+        'feature_cols': features,
+        'target': target,
+        'group_col': group_col,
     }
 
     # Save the trained model pipeline

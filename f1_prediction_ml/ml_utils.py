@@ -88,8 +88,7 @@ def create_row_id(df):
         pd.DataFrame: A DataFrame containing the session data with a new row_id column.
     """
 
-    # Get year from date column and add to dataframe
-    df['year'] = df['date'].str.split('-').str[0]
+    df['year'] = pd.to_datetime(df['date']).dt.year.astype(str)
     # Create event_id by concatenating year and grand_prix
     grand_prix = df['grand_prix'].iloc[0].replace(' ', '_')
     df['event_id'] = df['year'] + '_' + grand_prix
