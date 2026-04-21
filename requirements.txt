@@ -12,3 +12,7 @@ notebook>=7.0.0
 
 # Machine learning libraries
 scikit-learn>=1.0.0
+
+# Web scraping (if needed for additional data)
+requests>=2.0.0
+beautifulsoup4>=4.0.0
