@@ -56,19 +56,18 @@ def train_and_save_model(train_df: pd.DataFrame):
 
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='median')),
-        ('scalar', StandardScaler())
+        ('scalar', StandardScaler()),
     ])
 
     categorical_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='most_frequent')),
-        ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
+        ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False)),
     ])
 
     preprocess = ColumnTransformer(transformers=[
         ('num', numeric_transformer, numeric_features),
         ('cat', categorical_transformer, categorical_features),
-        ('spe', 'passthrough', special_feature)
-    ], remainder='drop')
+    ])
 
     model_pipeline = Pipeline(steps=[
         ('preprocess', preprocess),

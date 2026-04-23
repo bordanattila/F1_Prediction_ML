@@ -7,6 +7,7 @@ the shared training files (session lists, master CSVs).
 import sys
 from pathlib import Path
 import pandas as pd
+import fastf1
 
 project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
@@ -57,10 +58,11 @@ NORMALIZE_DROP_COLS = [
 ]
 
 DEFAULT_SESSION_TYPES = ['FP1', 'FP2', 'FP3', 'Q']
+SPRINT_SESSION_TYPES = ['FP1', 'SQ', 'S', 'SS','Q']
 
 SESSION_TYPE_TO_PREFIX = {
     'FP1': 'fp1_', 'FP2': 'fp2_', 'FP3': 'fp3_',
-    'Q': 'quali_', 'SQ': 'sprint_quali_',
+    'Q': 'quali_', 'SQ': 'sprint_quali_', 'S': 'sprint_', 'SS': 'sprint_shootout_',
 }
 
 
@@ -107,7 +109,7 @@ def _normalize(organized_df: pd.DataFrame, session_type: str) -> pd.DataFrame:
 
     if session_type in ('Q', 'SQ'):
         return QualifyingNormalizer().normalize_quali_data(df)
-    if session_type in ('FP1', 'FP2', 'FP3'):
+    if session_type in ('FP1', 'FP2', 'FP3', 'S', 'SS'):
         return FreePracticeNormalizer().normalize_free_practice_data(df)
     raise ValueError(f"Unsupported session type for inference: {session_type}")
 
@@ -118,7 +120,7 @@ def _extract_features(normalized_df: pd.DataFrame, session_type: str) -> pd.Data
         return QualifyingFeatures().create_quali_features(
             normalized_df, SESSION_METRICS, BASE_ID_COLS
         )
-    if session_type in ('FP1', 'FP2', 'FP3'):
+    if session_type in ('FP1', 'FP2', 'FP3', 'S', 'SS'):
         return FreePracticeFeatures().create_free_practice_features(
             normalized_df, SESSION_METRICS, BASE_ID_COLS
         )
@@ -145,10 +147,22 @@ def build_inference_features(
         pd.DataFrame with one row per driver, containing identity columns and all
         available prefixed feature columns.
     """
-    if session_types is None:
-        session_types = list(DEFAULT_SESSION_TYPES)
-
     collector = RawDataCollector(cache_dir=str(project_root))
+
+    if session_types is None:
+        try:
+            event = fastf1.get_event(year, grand_prix)
+            event_format = event['EventFormat']
+            print(f"{CYAN}INFO: Detected EventFormat = '{event_format}'{RESET}")
+        except Exception as e:
+            print(f"{MAGENTA}WARNING: Could not detect event format, defaulting to conventional: {e}{RESET}")
+            event_format = 'conventional'
+
+        if event_format in ('sprint', 'sprint_shootout', 'sprint_qualifying'):
+            print(f"{CYAN}INFO: Sprint weekend detected ({event_format}) — using {SPRINT_SESSION_TYPES}{RESET}")
+            session_types = list(SPRINT_SESSION_TYPES)
+        else:
+            session_types = list(DEFAULT_SESSION_TYPES)
     session_features: dict[str, pd.DataFrame] = {}
 
     for ses_type in session_types:

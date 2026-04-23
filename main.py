@@ -15,15 +15,16 @@ from f1_prediction_ml.evaluation.pole_sitter_baseline import pole_sitter_baselin
 from f1_prediction_ml.ml_utils import get_list_of_sessions
 from f1_prediction_ml.modeling.train_post_quali_model import train_and_save_model
 
-session_year = 2022
-sessions = ['Emilia-Romagna', 'Bahrain', 'Miami', 'Azerbaijan', 'Spain', 'Monaco', 'Canada', 'Australia', 'Austria', 'Great Britain', 'Netherlands', 'Germany',
-         'Hungary', 'Belgium', 'Italy','Singapore', 'Japan', 'United States', 'Mexico', 'Brazil', 'Abu Dhabi', 'Saudi Arabia', 'France']
+session_year = 2026
+sessions = ['China']
+# sessions = ['Emilia-Romagna', 'Bahrain', 'Miami', 'Azerbaijan', 'Spain', 'Monaco', 'Canada', 'Australia', 'Austria', 'Great Britain', 'Netherlands', 'Germany',
+#          'Hungary', 'Belgium', 'Italy','Singapore', 'Japan', 'United States', 'Mexico', 'Brazil', 'Abu Dhabi', 'Saudi Arabia', 'France']
 # sessions = ['Australia', 'Bahrain', 'China', 'Azerbaijan', 'Spain', 'Monaco', 'Canada', 'France', 'Austria', 'Great Britain', 'Germany',
         #  'Hungary', 'Belgium', 'Italy', 'Singapore', 'Russia', 'Japan', 'United States', 'Mexico', 'Brazil', 'Abu Dhabi']
 session_type = ['FP1', 'FP2', 'FP3', 'SQ', 'Q', 'S', 'SS', 'R']
 
 
-# raw_data_collection_pipeline(session_year, sessions, session_type)
+raw_data_collection_pipeline(session_year, sessions, session_type)
 # raw_data_processing_pipeline(session_year, sessions, session_type)
 
 # list_of_sessions = get_list_of_sessions('list_of_organized_files.csv')
@@ -42,17 +43,17 @@ session_type = ['FP1', 'FP2', 'FP3', 'SQ', 'Q', 'S', 'SS', 'R']
 
 # concatenate_model_training_data(list_of_sessions)
 
-run_evaluation()
+# run_evaluation()
 
-pole_sitter_baseline()
+# pole_sitter_baseline()
 
 # train_and_save_model(df)
 
-import fastf1 as f1
-import pandas as pd
+# import fastf1 as f1
+# import pandas as pd
 
-schedule = f1.get_event_schedule(2023)
-print(schedule)
-schedule_df = pd.DataFrame(schedule)
-print(schedule_df.head())
-print(schedule_df.info())
+# schedule = f1.get_event_schedule(2023)
+# print(schedule)
+# schedule_df = pd.DataFrame(schedule)
+# print(schedule_df.head())
+# print(schedule_df.info())

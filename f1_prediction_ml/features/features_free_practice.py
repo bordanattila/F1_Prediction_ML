@@ -23,7 +23,7 @@ class FreePracticeFeatures:
         create_row_id(active_df)
         
         ses_type = active_df['session_type'].iloc[0]   
-        prefix_map = {'FP1': 'fp1_', 'FP2': 'fp2_', 'FP3': 'fp3_'}
+        prefix_map = {'FP1': 'fp1_', 'FP2': 'fp2_', 'FP3': 'fp3_', 'S': 'sprint_', 'SS': 'sprint_shootout_', 'SQ': 'sprint_quali_'}
         prefix = prefix_map.get(ses_type)
 
         if prefix is None:

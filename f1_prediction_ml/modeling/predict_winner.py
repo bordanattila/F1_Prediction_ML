@@ -7,21 +7,43 @@ from f1_prediction_ml.modeling.build_next_race_features import (
     align_features_for_inference,
 )
 
-MODEL_PATH = Path('models/random_forest_winner.pkl')
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+MODEL_PATH = PROJECT_ROOT / 'models' / 'random_forest_winner.pkl'
+
+
+def _resolve_model_path(model_artifact_path: str | Path | None) -> Path:
+    """Resolve model path; relative paths are anchored to project root (works from any cwd, e.g. notebooks/)."""
+    p = Path(model_artifact_path) if model_artifact_path is not None else MODEL_PATH
+    if not p.is_absolute():
+        p = (PROJECT_ROOT / p).resolve()
+    return p
 
 
 class WinnerPredictor:
     'Loads a trained model artifact and predicts race winners from pre-built feature DataFrames.'
 
-    def __init__(self, model_artifact_path: str = str(MODEL_PATH)):
+    def __init__(
+        self,
+        model_artifact_path: str | Path | None = None,
+        *,
+        artifact: dict | None = None,
+    ):
         """
         Args:
-            model_artifact_path: Path to a joblib artifact dict containing
-                'model' (fitted pipeline) and 'feature_cols' (list of training column names).
+            model_artifact_path: Path to a joblib artifact dict (used only if ``artifact`` is None).
+                Default: models/random_forest_winner.pkl under the project root. Relative paths are
+                resolved against the project root so Jupyter cwd does not matter.
+            artifact: In-memory artifact dict with keys ``model`` and ``feature_cols`` (e.g. from
+                notebook training). When set, nothing is loaded from disk.
         """
-        artifact = joblib.load(model_artifact_path)
-        self.model = artifact['model']
-        self.feature_cols = artifact['feature_cols']
+        if artifact is not None:
+            self.model = artifact['model']
+            self.feature_cols = artifact['feature_cols']
+        else:
+            path = _resolve_model_path(model_artifact_path)
+            loaded = joblib.load(path)
+            self.model = loaded['model']
+            self.feature_cols = loaded['feature_cols']
 
     def predict_next_race_winner(self, next_race_features_df: pd.DataFrame) -> pd.DataFrame:
         """
